@@ -26,9 +26,8 @@ const TAB_DATA = [
     id: "education",
     content: (
       <ul className="list-disc pl-2">
-        <li>Özel Çağ Fatih İlkokulu</li>
-        <li>Özel Onadım Eğitim Bilimleri Ortaokulu</li>
         <li>Abdulkadir Aksu Anadolu Lisesi</li>
+        <li>Bingöl Üniversitesi Bilgisayar Programcılığı</li>
       </ul>
     ),
   },
