@@ -16,7 +16,7 @@ const HeroSection = () => {
         const url = window.URL.createObjectURL(new Blob([blob]));
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'RAMAZAN_SAİD_GALİP.pdf'; // İndirilen dosyanın adı
+        a.download = 'RAMAZAN_SAİD_GALİP_CV.pdf'; // İndirilen dosyanın adı
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
