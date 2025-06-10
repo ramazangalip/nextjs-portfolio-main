@@ -1,74 +1,40 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import ProjectCard from "./ProjectCard";
-import ProjectTag from "./ProjectTag";
 import { motion, useInView } from "framer-motion";
-
-const projectsData = [
-  {
-    id: 1,
-    title: "TURKFLIX FILM SITE",
-    // description: "Project 1 description",
-    image: "/images/projects/1.png",
-    tag: ["All", "Web"],
-    gitUrl: "/",
-    previewUrl: "/",
-  },
-  {
-    id: 2,
-    title: "Ecommerce Web Site",
-    // description: "Project 2 description",
-    image: "/images/projects/2.png",
-    tag: ["All", "Web"],
-    gitUrl: "/",
-    previewUrl: "/",
-  },
-  {
-    id: 3,
-    title: "Shoes Website",
-    // description: "Project 3 description",
-    image: "/images/projects/3.png",
-    tag: ["All", "Web"],
-    gitUrl: "/",
-    previewUrl: "/",
-  },
-  {
-    id: 4,
-    title: "Flutter & Firebase Ecommerce Mobile Application",
-    // description: "Project 4 description",
-    image: "/images/projects/4.png",
-    tag: ["All", "Mobile"],
-    gitUrl: "/",
-    previewUrl: "/",
-  },
-  {
-    id: 5,
-    title: "Tesla Clone Website",
-    // description: "Authentication and CRUD operations",
-    image: "/images/projects/5.png",
-    tag: ["All", "Web"],
-    gitUrl: "https://github.com/ramazangalip/teslaWebsiteClone",
-    previewUrl: "/",
-  },
- 
-];
+import { getGitHubProjects } from "../services/api";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const ProjectsSection = () => {
-  const [tag, setTag] = useState("All");
+  const [projects, setProjects] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
-  const handleTagChange = (newTag) => {
-    setTag(newTag);
-  };
+  const projectsPerPage = 10;
 
-  const filteredProjects = projectsData.filter((project) =>
-    project.tag.includes(tag)
-  );
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const projectsData = await getGitHubProjects();
+      setProjects(projectsData);
+      setTotalPages(Math.ceil(projectsData.length / projectsPerPage));
+    };
+    fetchProjects();
+  }, []);
 
   const cardVariants = {
     initial: { y: 50, opacity: 0 },
     animate: { y: 0, opacity: 1 },
+  };
+
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+  const currentProjects = projects.slice(indexOfFirstProject, indexOfLastProject);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: ref.current.offsetTop - 100, behavior: 'smooth' });
   };
 
   return (
@@ -76,43 +42,67 @@ const ProjectsSection = () => {
       <h2 className="text-center text-4xl font-bold text-white mt-4 mb-8 md:mb-12">
         My Projects
       </h2>
-      <div className="text-white flex flex-row justify-center items-center gap-2 py-6">
-        <ProjectTag
-          onClick={handleTagChange}
-          name="All"
-          isSelected={tag === "All"}
-        />
-        <ProjectTag
-          onClick={handleTagChange}
-          name="Web"
-          isSelected={tag === "Web"}
-        />
-        <ProjectTag
-          onClick={handleTagChange}
-          name="Mobile"
-          isSelected={tag === "Mobile"}
-        />
-      </div>
-      <ul ref={ref} className="grid md:grid-cols-3 gap-8 md:gap-12">
-        {filteredProjects.map((project, index) => (
+      <ul ref={ref} className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto px-4">
+        {currentProjects.map((project, index) => (
           <motion.li
             key={index}
             variants={cardVariants}
             initial="initial"
             animate={isInView ? "animate" : "initial"}
-            transition={{ duration: 0.3, delay: index * 0.4 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
           >
             <ProjectCard
               key={project.id}
               title={project.title}
               description={project.description}
-              imgUrl={project.image}
               gitUrl={project.gitUrl}
-              previewUrl={project.previewUrl}
             />
           </motion.li>
         ))}
       </ul>
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-4 mt-8">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`p-2 rounded-full ${
+            currentPage === 1
+              ? "text-gray-500 cursor-not-allowed"
+              : "text-white hover:bg-[#252525]"
+          }`}
+        >
+          <ChevronLeftIcon className="h-6 w-6" />
+        </button>
+
+        <div className="flex gap-2">
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-4 py-2 rounded-lg ${
+                currentPage === index + 1
+                  ? "bg-primary-500 text-white"
+                  : "text-[#ADB7BE] hover:bg-[#252525]"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`p-2 rounded-full ${
+            currentPage === totalPages
+              ? "text-gray-500 cursor-not-allowed"
+              : "text-white hover:bg-[#252525]"
+          }`}
+        >
+          <ChevronRightIcon className="h-6 w-6" />
+        </button>
+      </div>
     </section>
   );
 };
