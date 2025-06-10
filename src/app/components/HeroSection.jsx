@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const HeroSection = () => {
   function handleDownload() {
-    const fileUrl = 'src\app\components\Ramazan_Said_Galip_CV.pdf'; // CV dosyanızın URL'si, dosyanın yoluna göre ayarlanmalı
+    const fileUrl = '/Ramazan_Said_Galip_CV.pdf'; // CV dosyanızın URL'si, dosyanın yoluna göre ayarlanmalı
 
     // Dosya indirme işlemi
     fetch(fileUrl)
